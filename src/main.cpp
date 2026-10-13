@@ -58,6 +58,23 @@ int main() {
     } catch (const std::invalid_argument& e) {
         std::cout << "E. exception caught: " << e.what() << '\n';
     }
+    // Test F: Hot block
+cache.reset();
+
+// Fill one set with 8 blocks
+for (std::uint64_t i = 0; i < 8; ++i) {
+    cache.access(i * 4096);
+}
+
+// Repeatedly access block 0 and a new block
+for (std::uint64_t i = 8; i < 16; ++i) {
+    cache.access(0);
+    cache.access(i * 4096);
+}
+
+std::cout << "Test F - Hot block\n";
+std::cout << "Hits: " << cache.hits() << '\n';
+std::cout << "Misses: " << cache.misses() << "\n\n";
 
     return 0;
 }
