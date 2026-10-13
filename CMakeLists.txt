@@ -16,5 +16,5 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_link_options(-fsanitize=address,undefined)
 endif()
 
-add_executable(minicache src/main.cpp src/CacheConfig.cpp)
+add_executable(minicache src/main.cpp src/CacheConfig.cpp src/Cache.cpp)
 target_include_directories(minicache PRIVATE include)   
