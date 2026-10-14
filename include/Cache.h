@@ -8,6 +8,7 @@
 struct CacheLine {
     bool valid = false;
     std::uint64_t tag = 0;
+    std::uint64_t lastUsed = 0;  // LRU: "time" of the last use
 };
 
 class Cache {
@@ -20,6 +21,8 @@ private:
     std::uint64_t indexMask_ = 0;
 
     CacheLine* lines_ = nullptr;  // array of numLines_ lines, owned by this object
+
+    std::uint64_t time_ = 0;  // LRU: increases on every access
 
     std::uint64_t hits_ = 0;
     std::uint64_t misses_ = 0;

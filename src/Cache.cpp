@@ -3,18 +3,16 @@
 #include <stdexcept>
 
 Cache::Cache(const CacheConfig& cfg) : config_(cfg) {
-    // Check first: if we throw here, nothing has been allocated yet.
     if (!config_.isValid()) {
         throw std::invalid_argument("Invalid cache configuration");
     }
 
-    // Compute once, so access() is fast.
     numLines_ = config_.numLines();
     offsetBits_ = config_.offsetBits();
     indexBits_ = config_.indexBits();
     indexMask_ = config_.numSets() - 1;
 
-    lines_ = new CacheLine[numLines_]{};  // all lines start empty
+    lines_ = new CacheLine[numLines_]{};
 }
 
 Cache::~Cache() {
@@ -22,47 +20,56 @@ Cache::~Cache() {
 }
 
 bool Cache::access(std::uint64_t addr) {
-    // 1) Split the address with the saved values (no recomputation).
+    ++time_;  // LRU: the clock ticks on every access
+
     const auto index = static_cast<std::size_t>((addr >> offsetBits_) & indexMask_);
     const std::uint64_t tag = addr >> (offsetBits_ + indexBits_);
-
     const std::size_t setStart = index * config_.associativity;
 
-    // 2) Search for a hit.
+    // 1) Search for a hit.
     for (std::size_t way = 0; way < config_.associativity; ++way) {
-        const CacheLine& line = lines_[setStart + way];
+        CacheLine& line = lines_[setStart + way];  // not const: we update lastUsed
         if (line.valid && line.tag == tag) {
+            line.lastUsed = time_;  // LRU: this line is now the newest
             ++hits_;
             return true;
         }
     }
 
-    // 3) Miss.
+    // 2) Miss.
     ++misses_;
 
-    // 4) Use an empty line if there is one.
+    // 3) Use an empty line if there is one.
     for (std::size_t way = 0; way < config_.associativity; ++way) {
         CacheLine& line = lines_[setStart + way];
         if (!line.valid) {
             line.valid = true;
             line.tag = tag;
+            line.lastUsed = time_;  // LRU
             return false;
         }
     }
 
-    // 5) Set is full: replace way 0 (Part 3 will change this to LRU).
-    CacheLine& line = lines_[setStart];
-    line.valid = true;
-    line.tag = tag;
+    // 4) Set is full: replace the Least Recently Used line (smallest lastUsed).
+    std::size_t oldestWay = 0;
+    for (std::size_t way = 1; way < config_.associativity; ++way) {
+        if (lines_[setStart + way].lastUsed < lines_[setStart + oldestWay].lastUsed) {
+            oldestWay = way;
+        }
+    }
+
+    CacheLine& victim = lines_[setStart + oldestWay];
+    victim.tag = tag;          // valid is already true (the set was full)
+    victim.lastUsed = time_;
 
     return false;
 }
 
 void Cache::reset() {
     for (std::size_t i = 0; i < numLines_; ++i) {
-        lines_[i].valid = false;
-        lines_[i].tag = 0;
+        lines_[i] = CacheLine{};  // valid = false, tag = 0, lastUsed = 0
     }
+    time_ = 0;
     hits_ = 0;
     misses_ = 0;
 }
