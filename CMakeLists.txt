@@ -28,8 +28,11 @@ target_link_libraries(minicache PRIVATE minicache_core)
 add_executable(tests tests/test_cache.cpp)
 target_link_libraries(tests PRIVATE minicache_core)
 
+
+
 # Program 3: the real benchmark (does not use the cache classes)
 add_executable(bench src/bench.cpp)
+target_compile_options(bench PRIVATE -fno-loop-interchange)
 
 enable_testing()
 add_test(NAME cache_tests COMMAND tests)

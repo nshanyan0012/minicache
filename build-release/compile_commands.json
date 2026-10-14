@@ -25,7 +25,7 @@
 },
 {
   "directory": "/home/dian/projects/minicache/build-release",
-  "command": "/usr/bin/c++   -O3 -DNDEBUG -std=gnu++17 -Wall -Wextra -Wpedantic -o CMakeFiles/bench.dir/src/bench.cpp.o -c /home/dian/projects/minicache/src/bench.cpp",
+  "command": "/usr/bin/c++   -O3 -DNDEBUG -std=gnu++17 -Wall -Wextra -Wpedantic -fno-loop-interchange -o CMakeFiles/bench.dir/src/bench.cpp.o -c /home/dian/projects/minicache/src/bench.cpp",
   "file": "/home/dian/projects/minicache/src/bench.cpp",
   "output": "CMakeFiles/bench.dir/src/bench.cpp.o"
 }
