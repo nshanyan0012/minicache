@@ -163,6 +163,38 @@ void testTwoWayNoConflict() {
     checkEqual(c.hits(), 3968, "ping-pong, 2 ways: hits");
     checkEqual(c.misses(), 128, "ping-pong, 2 ways: misses");
 }
+// Read 64 KB, one access per 64-byte line, 2 rounds.
+void read64KBTwice(Cache& l1) {
+    for (int round = 0; round < 2; ++round) {
+        for (std::uint64_t addr = 0; addr < 64 * 1024; addr += 64) {
+            l1.access(addr);
+        }
+    }
+}
+
+void testL2CatchesL1Misses() {
+    Cache l2(CacheConfig{256 * 1024, 64, 8});  // create L2 FIRST: it must live longer
+    Cache l1(kL1);
+    l1.setNext(&l2);
+
+    read64KBTwice(l1);
+
+    checkEqual(l1.hits(), 0, "L1+L2, 64 KB x2: L1 hits");
+    checkEqual(l1.misses(), 2048, "L1+L2, 64 KB x2: L1 misses");
+    checkEqual(l2.hits(), 1024, "L1+L2, 64 KB x2: L2 hits");
+    checkEqual(l2.misses(), 1024, "L1+L2, 64 KB x2: L2 misses");
+}
+
+void testL2SeesOnlyL1Misses() {
+    Cache l2(CacheConfig{256 * 1024, 64, 8});
+    Cache l1(kL1);
+    l1.setNext(&l2);
+
+    read64KBTwice(l1);
+
+    checkEqual(l2.hits() + l2.misses(), l1.misses(),
+               "L2 accesses == L1 misses");
+}
 
 }  // namespace
 

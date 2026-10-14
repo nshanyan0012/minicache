@@ -1,0 +1,32 @@
+[
+{
+  "directory": "/home/dian/projects/minicache/build-release",
+  "command": "/usr/bin/c++  -I/home/dian/projects/minicache/include -O3 -DNDEBUG -std=gnu++17 -Wall -Wextra -Wpedantic -o CMakeFiles/minicache_core.dir/src/CacheConfig.cpp.o -c /home/dian/projects/minicache/src/CacheConfig.cpp",
+  "file": "/home/dian/projects/minicache/src/CacheConfig.cpp",
+  "output": "CMakeFiles/minicache_core.dir/src/CacheConfig.cpp.o"
+},
+{
+  "directory": "/home/dian/projects/minicache/build-release",
+  "command": "/usr/bin/c++  -I/home/dian/projects/minicache/include -O3 -DNDEBUG -std=gnu++17 -Wall -Wextra -Wpedantic -o CMakeFiles/minicache_core.dir/src/Cache.cpp.o -c /home/dian/projects/minicache/src/Cache.cpp",
+  "file": "/home/dian/projects/minicache/src/Cache.cpp",
+  "output": "CMakeFiles/minicache_core.dir/src/Cache.cpp.o"
+},
+{
+  "directory": "/home/dian/projects/minicache/build-release",
+  "command": "/usr/bin/c++  -I/home/dian/projects/minicache/include -O3 -DNDEBUG -std=gnu++17 -Wall -Wextra -Wpedantic -o CMakeFiles/minicache.dir/src/main.cpp.o -c /home/dian/projects/minicache/src/main.cpp",
+  "file": "/home/dian/projects/minicache/src/main.cpp",
+  "output": "CMakeFiles/minicache.dir/src/main.cpp.o"
+},
+{
+  "directory": "/home/dian/projects/minicache/build-release",
+  "command": "/usr/bin/c++  -I/home/dian/projects/minicache/include -O3 -DNDEBUG -std=gnu++17 -Wall -Wextra -Wpedantic -o CMakeFiles/tests.dir/tests/test_cache.cpp.o -c /home/dian/projects/minicache/tests/test_cache.cpp",
+  "file": "/home/dian/projects/minicache/tests/test_cache.cpp",
+  "output": "CMakeFiles/tests.dir/tests/test_cache.cpp.o"
+},
+{
+  "directory": "/home/dian/projects/minicache/build-release",
+  "command": "/usr/bin/c++   -O3 -DNDEBUG -std=gnu++17 -Wall -Wextra -Wpedantic -o CMakeFiles/bench.dir/src/bench.cpp.o -c /home/dian/projects/minicache/src/bench.cpp",
+  "file": "/home/dian/projects/minicache/src/bench.cpp",
+  "output": "CMakeFiles/bench.dir/src/bench.cpp.o"
+}
+]

@@ -2,7 +2,7 @@
 #include "CacheConfig.h"
 
 #include <iomanip>
-#include <iostream>
+#include <iostream> 
 
 // A at address 0, B at 32 KB: A[i] and B[i] map to the same set.
 void pingPong(Cache& cache) {

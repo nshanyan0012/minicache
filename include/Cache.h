@@ -20,9 +20,10 @@ private:
     unsigned indexBits_ = 0;
     std::uint64_t indexMask_ = 0;
 
-    CacheLine* lines_ = nullptr;  // array of numLines_ lines, owned by this object
+    CacheLine* lines_ = nullptr;  // OWNED: created with new[], freed with delete[]
+    Cache* next_ = nullptr;       // NOT owned: the next level (e.g. L2), never deleted here
 
-    std::uint64_t time_ = 0;  // LRU: increases on every access
+    std::uint64_t time_ = 0;
 
     std::uint64_t hits_ = 0;
     std::uint64_t misses_ = 0;
@@ -34,6 +35,9 @@ public:
     // The cache owns raw memory: forbid copying to avoid a double delete[].
     Cache(const Cache&) = delete;
     Cache& operator=(const Cache&) = delete;
+
+    // Connect the next level. The next cache must live longer than this one.
+    void setNext(Cache* next) { next_ = next; }
 
     bool access(std::uint64_t addr);  // true = hit, false = miss
     void reset();                     // empty all lines, counters = 0

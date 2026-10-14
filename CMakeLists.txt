@@ -16,7 +16,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_link_options(-fsanitize=address,undefined)
 endif()
 
-# The cache code as a library, used by both programs.
+# The cache code as a library, used by the demo and the tests.
 add_library(minicache_core STATIC src/CacheConfig.cpp src/Cache.cpp)
 target_include_directories(minicache_core PUBLIC include)
 
@@ -27,6 +27,9 @@ target_link_libraries(minicache PRIVATE minicache_core)
 # Program 2: the tests
 add_executable(tests tests/test_cache.cpp)
 target_link_libraries(tests PRIVATE minicache_core)
+
+# Program 3: the real benchmark (does not use the cache classes)
+add_executable(bench src/bench.cpp)
 
 enable_testing()
 add_test(NAME cache_tests COMMAND tests)

@@ -16,11 +16,11 @@ Cache::Cache(const CacheConfig& cfg) : config_(cfg) {
 }
 
 Cache::~Cache() {
-    delete[] lines_;
+    delete[] lines_;  // only lines_, never next_ (we don't own it)
 }
 
 bool Cache::access(std::uint64_t addr) {
-    ++time_;  // LRU: the clock ticks on every access
+    ++time_;
 
     const auto index = static_cast<std::size_t>((addr >> offsetBits_) & indexMask_);
     const std::uint64_t tag = addr >> (offsetBits_ + indexBits_);
@@ -28,16 +28,21 @@ bool Cache::access(std::uint64_t addr) {
 
     // 1) Search for a hit.
     for (std::size_t way = 0; way < config_.associativity; ++way) {
-        CacheLine& line = lines_[setStart + way];  // not const: we update lastUsed
+        CacheLine& line = lines_[setStart + way];
         if (line.valid && line.tag == tag) {
-            line.lastUsed = time_;  // LRU: this line is now the newest
+            line.lastUsed = time_;
             ++hits_;
-            return true;
+            return true;  // a hit never reaches the next level
         }
     }
 
     // 2) Miss.
     ++misses_;
+
+    // L2: ask the next level (if there is one) for the same address.
+    if (next_ != nullptr) {
+        next_->access(addr);
+    }
 
     // 3) Use an empty line if there is one.
     for (std::size_t way = 0; way < config_.associativity; ++way) {
@@ -45,12 +50,12 @@ bool Cache::access(std::uint64_t addr) {
         if (!line.valid) {
             line.valid = true;
             line.tag = tag;
-            line.lastUsed = time_;  // LRU
+            line.lastUsed = time_;
             return false;
         }
     }
 
-    // 4) Set is full: replace the Least Recently Used line (smallest lastUsed).
+    // 4) Set is full: replace the Least Recently Used line.
     std::size_t oldestWay = 0;
     for (std::size_t way = 1; way < config_.associativity; ++way) {
         if (lines_[setStart + way].lastUsed < lines_[setStart + oldestWay].lastUsed) {
@@ -59,7 +64,7 @@ bool Cache::access(std::uint64_t addr) {
     }
 
     CacheLine& victim = lines_[setStart + oldestWay];
-    victim.tag = tag;          // valid is already true (the set was full)
+    victim.tag = tag;
     victim.lastUsed = time_;
 
     return false;
@@ -67,7 +72,7 @@ bool Cache::access(std::uint64_t addr) {
 
 void Cache::reset() {
     for (std::size_t i = 0; i < numLines_; ++i) {
-        lines_[i] = CacheLine{};  // valid = false, tag = 0, lastUsed = 0
+        lines_[i] = CacheLine{};
     }
     time_ = 0;
     hits_ = 0;

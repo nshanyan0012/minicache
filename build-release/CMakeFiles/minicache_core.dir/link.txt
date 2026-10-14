@@ -1,0 +1,2 @@
+/usr/bin/ar qc libminicache_core.a CMakeFiles/minicache_core.dir/src/CacheConfig.cpp.o CMakeFiles/minicache_core.dir/src/Cache.cpp.o
+/usr/bin/ranlib libminicache_core.a

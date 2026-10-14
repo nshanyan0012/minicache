@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/minicache.dir/src/main.cpp.o -o minicache  libminicache_core.a 

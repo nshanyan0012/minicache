@@ -1,0 +1,7 @@
+/home/dian/projects/minicache/build-release/CMakeFiles/minicache_core.dir
+/home/dian/projects/minicache/build-release/CMakeFiles/minicache.dir
+/home/dian/projects/minicache/build-release/CMakeFiles/tests.dir
+/home/dian/projects/minicache/build-release/CMakeFiles/bench.dir
+/home/dian/projects/minicache/build-release/CMakeFiles/test.dir
+/home/dian/projects/minicache/build-release/CMakeFiles/edit_cache.dir
+/home/dian/projects/minicache/build-release/CMakeFiles/rebuild_cache.dir

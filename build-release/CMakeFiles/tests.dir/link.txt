@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/tests.dir/tests/test_cache.cpp.o -o tests  libminicache_core.a 
