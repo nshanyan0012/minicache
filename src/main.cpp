@@ -3,71 +3,33 @@
 
 #include <iomanip>
 #include <iostream>
-#include <stdexcept>
 
-void printResult(const char* name, const Cache& cache) {
-    std::cout << name
-              << "  hits: " << cache.hits()
-              << "  misses: " << cache.misses()
-              << "  hit rate: " << std::fixed << std::setprecision(2)
-              << cache.hitRate() * 100.0 << "%\n";
+// A at address 0, B at 32 KB: A[i] and B[i] map to the same set.
+void pingPong(Cache& cache) {
+    const std::uint64_t arrayB = 32 * 1024;
+    for (int round = 0; round < 2; ++round) {
+        for (std::uint64_t offset = 0; offset < 4096; offset += 4) {
+            cache.access(offset);
+            cache.access(arrayB + offset);
+        }
+    }
 }
 
 int main() {
-    const CacheConfig cfg{32 * 1024, 64, 8};
-    const std::uint64_t setStride = 4096;  // 64 sets * 64 bytes -> always set 0
+    std::cout << "Ping-pong between two arrays, 32 KB cache, 64-byte lines\n\n";
+    std::cout << std::left << std::setw(8) << "ways"
+              << std::right << std::setw(8) << "hits"
+              << std::setw(10) << "misses"
+              << std::setw(12) << "hit rate" << '\n';
 
-    Cache cache(cfg);
-
-    // A. Same address 10 times
-    for (int i = 0; i < 10; ++i) {
-        cache.access(0x1000);
-    }
-    printResult("A. same address x10    ", cache);
-    cache.reset();
-
-    // B. Sequential 4 KB, 4 bytes at a time
-    for (std::uint64_t addr = 0; addr < 4096; addr += 4) {
-        cache.access(addr);
-    }
-    printResult("B. sequential 4 KB     ", cache);
-    cache.reset();
-
-    // C. 8 blocks in set 0, twice (fits in 8 ways)
-    for (int round = 0; round < 2; ++round) {
-        for (std::uint64_t i = 0; i < 8; ++i) {
-            cache.access(i * setStride);
-        }
-    }
-    printResult("C. 8 blocks, same set  ", cache);
-    cache.reset();
-
-    // D. 9 blocks in set 0, twice (does not fit -> thrashing with LRU)
-    for (int round = 0; round < 2; ++round) {
-        for (std::uint64_t i = 0; i < 9; ++i) {
-            cache.access(i * setStride);
-        }
-    }
-    printResult("D. 9 blocks, same set  ", cache);
-    cache.reset();
-
-    // F. Hot block: fill the set, then keep using block 0 between new blocks
-    for (std::uint64_t i = 0; i < 8; ++i) {
-        cache.access(i * setStride);
-    }
-    for (std::uint64_t i = 8; i < 16; ++i) {
-        cache.access(0);               // the hot block
-        cache.access(i * setStride);   // a new block
-    }
-    printResult("F. hot block           ", cache);
-    cache.reset();
-
-    // E. Invalid config must throw
-    try {
-        Cache bad(CacheConfig{32 * 1024, 48, 8});
-        std::cout << "E. ERROR: no exception!\n";
-    } catch (const std::invalid_argument& e) {
-        std::cout << "E. exception caught: " << e.what() << '\n';
+    for (std::size_t ways : {1, 2, 4, 8}) {
+        Cache c(CacheConfig{32 * 1024, 64, ways});
+        pingPong(c);
+        std::cout << std::left << std::setw(8) << ways
+                  << std::right << std::setw(8) << c.hits()
+                  << std::setw(10) << c.misses()
+                  << std::setw(11) << std::fixed << std::setprecision(2)
+                  << c.hitRate() * 100.0 << "%\n";
     }
 
     return 0;
